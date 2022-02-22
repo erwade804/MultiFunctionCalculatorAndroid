@@ -1,9 +1,6 @@
 package com.example.multifunctioncalculator;
 
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-
 import java.math.BigDecimal;
 import java.util.Observable;
 
@@ -11,7 +8,6 @@ public class model extends Observable {
 
     private BigDecimal number;
     private BigDecimal storage;
-    private boolean dec;
     private String action;
     private StringBuilder numStr;
 
@@ -19,7 +15,6 @@ public class model extends Observable {
     public model(){
         number = new BigDecimal(0);
         numStr = new StringBuilder();
-        dec = false;
         action = "";
     }
 
@@ -33,7 +28,6 @@ public class model extends Observable {
         number = new BigDecimal(0);
         storage = new BigDecimal(0);
         action = "";
-        dec = false;
     }
 
     public void setAction(String act){
@@ -41,6 +35,9 @@ public class model extends Observable {
             takeAction();
         }
         switch (act) {
+            case "=":
+                takeAction();
+                break;
             case "c":
                 clear();
                 break;
@@ -54,7 +51,6 @@ public class model extends Observable {
                 setSqrt();
                 break;
             case ".":
-                if (dec) break;
                 action = act;
                 takeAction();
                 break;
@@ -73,7 +69,7 @@ public class model extends Observable {
             number = new BigDecimal(0);
             return;
         }
-        number = (new BigDecimal(100).subtract(number)).divide(new BigDecimal(100)).multiply(storage);
+        number = (new BigDecimal(100).add(number)).divide(new BigDecimal(100)).multiply(storage);
     }
 
     private void makeNeg(){
@@ -102,8 +98,9 @@ public class model extends Observable {
                 number = number.multiply(storage);
                 break;
             case ".":
-                numStr.append(".");
-                dec = true;
+                if (!numStr.toString().contains("."))
+                    numStr.append(".");
+
                 break;
         }
         numStr = new StringBuilder().append(number.toString());
@@ -114,7 +111,7 @@ public class model extends Observable {
 
     private void updateScreen(){
         Log.i("Test", "We sent the notify");
-        numStr = new StringBuilder().append(number.toString());
+        numStr = (new StringBuilder()).append(number.toString());
         setChanged();
         notifyObservers(numStr);
     }
