@@ -10,17 +10,23 @@ public class model extends Observable {
     private BigDecimal storage;
     private String action;
     private StringBuilder numStr;
+    private boolean dec;
+    private String instantAction;
 
 
     public model(){
         number = new BigDecimal(0);
-        numStr = new StringBuilder();
+        numStr = new StringBuilder().append("0");
+        storage = new BigDecimal(0);
         action = "";
+        instantAction = "";
+        dec = false;
     }
 
     public void append(int newNum){
         numStr.append(newNum);
         number = new BigDecimal(numStr.toString());
+        dec = numStr.toString().contains(".");
         updateScreen();
     }
 
@@ -28,38 +34,49 @@ public class model extends Observable {
         number = new BigDecimal(0);
         storage = new BigDecimal(0);
         action = "";
+        dec = false;
     }
 
     public void setAction(String act){
-        if (!action.equals("")){
-            takeAction();
-        }
-        switch (act) {
-            case "=":
-                takeAction();
-                break;
-            case "c":
-                clear();
+        boolean actionTaken = true;
+        number = new BigDecimal(numStr.toString());
+        // instant actions
+        switch(act){
+            case "mod":
+                setPercent();
                 break;
             case "+-":
                 makeNeg();
                 break;
-            case "mod":
-                setPercent();
-                break;
-            case "sqrt":
-                setSqrt();
-                break;
-            case ".":
-                action = act;
-                takeAction();
-                break;
             default:
-                numStr = new StringBuilder();
-                action = act;
-                storage = number;
-                number = new BigDecimal(0);
+                actionTaken = false;
                 break;
+
+        }
+
+        if (!actionTaken){
+            switch (act) {
+                case "=":
+                    takeAction();
+                    break;
+                case "c":
+                    clear();
+                    break;
+                case "sqrt":
+                    setSqrt();
+                    break;
+                case ".":
+                    instantAction = act;
+                    takeAction();
+                    break;
+                default:
+                    dec = false;
+                    numStr = new StringBuilder().append(0);
+                    action = act;
+                    storage = number;
+                    number = new BigDecimal(0);
+                    break;
+            }
         }
         updateScreen();
     }
@@ -67,9 +84,10 @@ public class model extends Observable {
     private void setPercent(){
         if(storage.equals(new BigDecimal("0"))){
             number = new BigDecimal(0);
-            return;
+
+        }else{
+            number = number.divide(new BigDecimal(100)).multiply(storage);
         }
-        number = (new BigDecimal(100).add(number)).divide(new BigDecimal(100)).multiply(storage);
     }
 
     private void makeNeg(){
@@ -84,9 +102,22 @@ public class model extends Observable {
     }
 
     private void takeAction(){ // execute the action
+        Log.i("Test", "Action:"+action);
+        if (instantAction.equals(".")){
+            if (!numStr.toString().contains(".") || !dec) {
+                numStr.append(".");
+                dec = true;
+                Log.i("Test", numStr.toString());
+            }
+            instantAction = "";
+            return;
+        }
         switch (action) {
             case "+":
                 number = number.add(storage);
+                Log.i("Test", "Number: " + number.toString());
+                Log.i("Test", "Storage: "+storage.toString());
+                Log.i("Test", "add: "+number.add(storage));
                 break;
             case "-":
                 number = storage.subtract(number);
@@ -97,21 +128,27 @@ public class model extends Observable {
             case "x":
                 number = number.multiply(storage);
                 break;
-            case ".":
-                if (!numStr.toString().contains("."))
-                    numStr.append(".");
 
-                break;
         }
+        Log.i("Test", "Storage: "+storage.toString());
         numStr = new StringBuilder().append(number.toString());
-        storage = new BigDecimal(0);
+        if (!action.equals(".")) {
+            storage = new BigDecimal(0);
+        }
         action = "";
         updateScreen();
+
+        Log.i("Test", numStr.toString());
     }
 
     private void updateScreen(){
         Log.i("Test", "We sent the notify");
         numStr = (new StringBuilder()).append(number.toString());
+        if (dec && !numStr.toString().contains(".")){
+            numStr.append(".");
+            Log.i("Test", numStr.toString());
+
+        }
         setChanged();
         notifyObservers(numStr);
     }
