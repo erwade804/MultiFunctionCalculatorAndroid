@@ -40,8 +40,6 @@ public class FirstFragment extends Fragment implements Observer {
             @Override
             public void onClick(View v){
                 String tag = ((Button) v).getTag().toString();
-
-                Log.i("Test", tag);
                 boolean flags = false;
                 for (int i = 0; i < 10; i++) {
                     if (tag.equals(Integer.toString(i))) {
@@ -60,7 +58,6 @@ public class FirstFragment extends Fragment implements Observer {
         for(int i = 0; i < layout.getChildCount(); i++){
             View child = layout.getChildAt(i);
             if(child instanceof Button){
-                Log.i("Test", "new child");
                 child.setOnClickListener(click);
             }
         }

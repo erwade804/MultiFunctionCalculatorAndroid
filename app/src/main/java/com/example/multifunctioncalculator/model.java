@@ -102,12 +102,10 @@ public class model extends Observable {
     }
 
     private void takeAction(){ // execute the action
-        Log.i("Test", "Action:"+action);
         if (instantAction.equals(".")){
             if (!numStr.toString().contains(".") || !dec) {
                 numStr.append(".");
                 dec = true;
-                Log.i("Test", numStr.toString());
             }
             instantAction = "";
             return;
@@ -115,9 +113,6 @@ public class model extends Observable {
         switch (action) {
             case "+":
                 number = number.add(storage);
-                Log.i("Test", "Number: " + number.toString());
-                Log.i("Test", "Storage: "+storage.toString());
-                Log.i("Test", "add: "+number.add(storage));
                 break;
             case "-":
                 number = storage.subtract(number);
@@ -130,7 +125,6 @@ public class model extends Observable {
                 break;
 
         }
-        Log.i("Test", "Storage: "+storage.toString());
         numStr = new StringBuilder().append(number.toString());
         if (!action.equals(".")) {
             storage = new BigDecimal(0);
@@ -142,11 +136,9 @@ public class model extends Observable {
     }
 
     private void updateScreen(){
-        Log.i("Test", "We sent the notify");
         numStr = (new StringBuilder()).append(number.toString());
         if (dec && !numStr.toString().contains(".")){
             numStr.append(".");
-            Log.i("Test", numStr.toString());
 
         }
         setChanged();
